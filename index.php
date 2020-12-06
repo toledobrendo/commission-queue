@@ -133,8 +133,10 @@
             $('#comm-name').val(name);
             $('#comm-id').val(id);
             $('#priority').val(priority);
+            $('input[name="progress"]').prop('checked', false).parent().removeClass('active');
             $('input[name="progress"][value="' + progress + '"]').prop('checked', true).parent().addClass('active');
-            $('input[name="paid"][value="' + paid + '"]').prop('checked', true).addClass('active');
+            $('input[name="paid"]').prop('checked', false).parent().removeClass('active');
+            $('input[name="paid"][value="' + paid + '"]').prop('checked', true).parent().addClass('active');
 
             $('#commModal').modal('toggle');
         });
@@ -145,8 +147,10 @@
             $('#comm-name').val(null);
             $('#comm-id').val(null);
             $('#priority').val(null);
+            $('input[name="progress"]').prop('checked', false).parent().removeClass('active');
             $('input[name="progress"][value="Queued"]').prop('checked', true).parent().addClass('active');
-            $('input[name="paid"][value="false"]').prop('checked', true).addClass('active');
+            $('input[name="paid"]').prop('checked', false).parent().removeClass('active');
+            $('input[name="paid"][value="false"]').prop('checked', true).parent().addClass('active');
 
             $('#commModal').modal('toggle');
 
