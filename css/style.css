@@ -11,3 +11,8 @@ body {
 table {
     font-size: 14px;
 }
+
+.alert-close {
+    height: 100%;
+    margin-top: -5px;
+}

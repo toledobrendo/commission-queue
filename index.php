@@ -17,10 +17,22 @@
             <div class="card-header">
                 <div class="row">
                     <div class="col">Sol's Commission Queue</div>
-                    <div class="col-6"><a class="float-right" href="no-javascript.html" id="add-button"><i class="fas fa-plus"></i> Add Queue</a></div>
+                    <div class="col-6"><a class="float-right" href="no-javascript.html" id="add-button"><i class="fas fa-plus"></i> Add Commission</a></div>
                 </div>
             </div>
             <div class="card-body">
+                <div class="alert alert-success alert-dismissible fade show hide" role="alert" style="display:none;" id="success-alert">
+                    <div id="alert-success-message">Successfully edited commission</div>
+                    <button type="button" class="close alert-close" data-dismiss="alert" aria-label="Close">
+                        <span aria-hidden="true">&times;</span>
+                    </button>
+                </div>
+                <div class="alert alert-danger alert-dismissible fade show collapse" role="alert" style="display:none;" id="error-alert">
+                    <div id="alert-error-message">Error</div>
+                    <button type="button" class="close alert-close" data-dismiss="alert" aria-label="Close">
+                        <span aria-hidden="true">&times;</span>
+                    </button>
+                </div>
                 <table class="table table-striped">
                     <thead>
                     <tr>
@@ -43,14 +55,25 @@
                         <td><i class="fas fa-times text-danger"></i><div class="d-none paid">false</div></td>
                         <?php }?>
                         <td>
-                            <button class="btn btn-light btn-sm up-button" data-toggle="tooltip" data-placement="top" title="Move up">
-                                <i class="fas fa-caret-up"></i></button>
-                            <button class="btn btn-light btn-sm down-button" data-toggle="tooltip" data-placement="top" title="Move down">
-                                <i class="fas fa-caret-down"></i></button>
-                            <button class="btn btn-success btn-sm edit-button" data-toggle="tooltip" data-placement="top" title="Edit">
-                                <i class="fas fa-edit"></i></button>
-                            <button class="btn btn-danger btn-sm delete-button" data-toggle="tooltip" data-placement="top" title="Delete">
-                                <i class="fas fa-times"></i></button>
+                            <?php if ($comm->getPriority() != 1) {?>
+                                <button class="btn btn-primary btn-sm edit-button" data-toggle="tooltip" data-placement="top" title="Edit">
+                                    <i class="fas fa-edit"></i></button>
+                                <a class="btn btn-danger btn-sm delete-button" href="delete-comm.php?id=<?=$comm->getId()?>" data-toggle="tooltip" data-placement="top" title="Delete">
+                                    <i class="fas fa-times"></i></a>
+                                <?php if ($comm->getPriority() > 2) { ?>
+                                    <a class="btn btn-light btn-sm up-button" href="change-prio.php?action=up&id=<?=$comm->getId()?>" data-toggle="tooltip" data-placement="top" title="Move up">
+                                        <i class="fas fa-caret-up"></i></a>
+                                <?php } ?>
+                                <?php if ($comm->getPriority() != $leastPrio) { ?>
+                                    <a class="btn btn-light btn-sm down-button" href="change-prio.php?action=down&id=<?=$comm->getId()?>" data-toggle="tooltip" data-placement="top" title="Move down">
+                                        <i class="fas fa-caret-down"></i></a>
+                                <?php }?>
+                            <?php } else { ?>
+                                <button class="btn btn-primary btn-sm edit-button" data-toggle="tooltip" data-placement="top" title="Edit">
+                                    <i class="fas fa-edit"></i></button>
+                                <a class="btn btn-success btn-sm complete-button" href="delete-comm.php?id=<?=$comm->getId()?>" data-toggle="tooltip" data-placement="top" title="Complete">
+                                    <i class="fas fa-thumbs-up"></i></a>
+                            <?php }?>
                             <div class="d-none comm-id"><?=$comm->getId()?></div>
                             <div class="d-none priority"><?=$comm->getPriority()?></div>
                         </td>
@@ -65,19 +88,19 @@
     <div class="modal fade" id="commModal" tabindex="-1">
         <div class="modal-dialog">
             <div class="modal-content">
-                <div class="modal-header">
-                    <h5 class="modal-title" id="modalLabel">New message</h5>
-                    <button type="button" class="close" data-dismiss="modal" aria-label="Close">
-                        <span aria-hidden="true">&times;</span>
-                    </button>
-                </div>
-                <div class="modal-body">
-                    <form>
+                <form action="add-commission.php" method="POST">
+                    <div class="modal-header">
+                        <h5 class="modal-title" id="modalLabel">New message</h5>
+                        <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                            <span aria-hidden="true">&times;</span>
+                        </button>
+                    </div>
+                    <div class="modal-body">
                         <div class="form-group">
                             <label for="comm-name" class="col-form-label">Name:</label>
-                            <input type="text" class="form-control" id="comm-name" name="commName" required>
+                            <input type="text" class="form-control" id="comm-name" name="commName" required autofocus>
                         </div>
-                        <div class="form-group">
+                        <div class="form-group" id="progress-group">
                             <label for="message-text" class="col-form-label">Progress:</label>
                             <div class="w-100"></div>
                             <div class="btn-group btn-group-toggle" data-toggle="buttons">
@@ -109,17 +132,51 @@
                         </div>
                         <input type="hidden" id="comm-id" name="id"/>
                         <input type="hidden" id="priority" name="priority"/>
-                    </form>
-                </div>
-                <div class="modal-footer">
-                    <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
-                    <button type="button" class="btn btn-primary">Send message</button>
-                </div>
+                    </div>
+                    <div class="modal-footer">
+                        <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
+                        <button type="submit" class="btn btn-primary">Submit</button>
+                    </div>
+                </form>
             </div>
         </div>
     </div>
 
     <script type="application/javascript">
+        let params = new URLSearchParams(window.location.search);
+        if (params.has('success')) {
+            let param = params.get('success');
+            if (param === 'edit') {
+                $('#alert-success-message').text('Successfully edited commission');
+            } else if (param === 'create') {
+                $('#alert-success-message').text('Successfully created new commission');
+            } else if (param === 'delete') {
+                $('#alert-success-message').text('Successfully deleted/completed commission');
+            } else if (param === 'up') {
+                $('#alert-success-message').text('Successfully prioritized ' + params.get('target'));
+            } else if (param === 'down') {
+                $('#alert-success-message').text('Successfully de-prioritized ' + params.get('target'));
+            }
+            $('#success-alert').show();
+            setTimeout(function() {
+                $('#success-alert').hide();
+            }, 5000);
+        }
+        if (params.has('error')) {
+            let param = params.get('error');
+            if (param === 'input') {
+                $('#alert-error-message').text('Commission details are not complete');
+            } else if (param === 'no-id') {
+                $('#alert-error-message').text('Commission does not exist');
+            } else if (param === 'invalid-action') {
+                $('#alert-error-message').text('Invalid action');
+            }
+            $('#error-alert').show();
+            setTimeout(function() {
+                $('#error-alert').hide();
+            }, 5000);
+        }
+
         $('.edit-button').click(function() {
             $('#modalLabel').text('Edit Commission');
 
@@ -138,6 +195,10 @@
             $('input[name="paid"]').prop('checked', false).parent().removeClass('active');
             $('input[name="paid"][value="' + paid + '"]').prop('checked', true).parent().addClass('active');
 
+            if (priority != 1) {
+                $('#progress-group').addClass('d-none');
+            }
+
             $('#commModal').modal('toggle');
         });
 
@@ -151,6 +212,8 @@
             $('input[name="progress"][value="Queued"]').prop('checked', true).parent().addClass('active');
             $('input[name="paid"]').prop('checked', false).parent().removeClass('active');
             $('input[name="paid"][value="false"]').prop('checked', true).parent().addClass('active');
+
+            $('#progress-group').addClass('d-none');
 
             $('#commModal').modal('toggle');
 

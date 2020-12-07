@@ -9,6 +9,7 @@
         private $progress;
         private $paid;
         private $priority;
+        private $expectedDays;
 
         /**
          * @return mixed
@@ -152,6 +153,22 @@
         public function setPriority($priority): void
         {
             $this->priority = $priority;
+        }
+
+        /**
+         * @return mixed
+         */
+        public function getExpectedDays()
+        {
+            return $this->expectedDays;
+        }
+
+        /**
+         * @param mixed $expectedDays
+         */
+        public function setExpectedDays($expectedDays): void
+        {
+            $this->expectedDays = $expectedDays;
         }
     }
 ?>
