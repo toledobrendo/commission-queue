@@ -3,11 +3,6 @@ body {
     font-size: 14px;
 }
 
-.search-form {
-    width: 80%;
-    margin: 0 auto;
-}
-
 table {
     font-size: 14px;
 }
@@ -15,4 +10,17 @@ table {
 .alert-close {
     height: 100%;
     margin-top: -5px;
+}
+
+.footer {
+    position: fixed;
+    left: 0;
+    bottom: 0;
+    width: 100%;
+    text-align: center;
+}
+
+.search-form {
+    width: 80%;
+    margin: 0 auto;
 }

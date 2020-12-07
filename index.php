@@ -92,6 +92,12 @@
             </div>
         </div>
     </div>
+    <footer class="footer py-2">
+        <div class="col-12">
+            <small class="text-muted">Prototype by Brendo Toledo</small><br/>
+            <small class="text-muted">toledo.brendo@gmail.com</small>
+        </div>
+    </footer>
 
     <div class="modal fade" id="commModal" tabindex="-1">
         <div class="modal-dialog">

@@ -25,7 +25,6 @@
                 }
                 header('Location: index.php');
             } else {
-                echo $encryptedPass;
                 header('Location: index.php?error=inc-cred');
             }
 
