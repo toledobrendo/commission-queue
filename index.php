@@ -1,6 +1,6 @@
 <?php
     ini_set('display_errors', 1);
-    require_once 'php/controller/IndexController.php'
+    require_once 'php/controller/IndexController.php';
 ?>
 <html>
 <head>
@@ -17,7 +17,11 @@
             <div class="card-header">
                 <div class="row">
                     <div class="col">Sol's Commission Queue</div>
-                    <div class="col-6"><a class="float-right" href="no-javascript.html" id="add-button"><i class="fas fa-plus"></i> Add Commission</a></div>
+                    <?php if (isset($_SESSION['username'])) { ?>
+                        <div class="col-6"><a class="float-right" href="no-javascript.html" id="add-button"><i class="fas fa-plus"></i> Add Commission</a></div>
+                    <?php } else { ?>
+                        <div class="col-6"><a class="float-right" href="no-javascript.html" id="login-button"><i class="fas fa-sign-in-alt"></i> Login</a></div>
+                    <?php }?>
                 </div>
             </div>
             <div class="card-body">
@@ -40,7 +44,9 @@
                         <th scope="col" style="width: 15%">Start Date</th>
                         <th scope="col" style="width: 15%">Progress</th>
                         <th scope="col" style="width: 10%">Paid</th>
-                        <th scope="col" style="width: 15%">Actions</th>
+                        <?php if (isset($_SESSION['username'])) { ?>
+                            <th scope="col" style="width: 15%">Actions</th>
+                        <?php } ?>
                     </tr>
                     </thead>
                     <tbody>
@@ -54,29 +60,31 @@
                         <?php } else {?>
                         <td><i class="fas fa-times text-danger"></i><div class="d-none paid">false</div></td>
                         <?php }?>
-                        <td>
-                            <?php if ($comm->getPriority() != 1) {?>
-                                <button class="btn btn-primary btn-sm edit-button" data-toggle="tooltip" data-placement="top" title="Edit">
-                                    <i class="fas fa-edit"></i></button>
-                                <a class="btn btn-danger btn-sm delete-button" href="delete-comm.php?id=<?=$comm->getId()?>" data-toggle="tooltip" data-placement="top" title="Delete">
-                                    <i class="fas fa-times"></i></a>
-                                <?php if ($comm->getPriority() > 2) { ?>
-                                    <a class="btn btn-light btn-sm up-button" href="change-prio.php?action=up&id=<?=$comm->getId()?>" data-toggle="tooltip" data-placement="top" title="Move up">
-                                        <i class="fas fa-caret-up"></i></a>
-                                <?php } ?>
-                                <?php if ($comm->getPriority() != $leastPrio) { ?>
-                                    <a class="btn btn-light btn-sm down-button" href="change-prio.php?action=down&id=<?=$comm->getId()?>" data-toggle="tooltip" data-placement="top" title="Move down">
-                                        <i class="fas fa-caret-down"></i></a>
+                        <?php if (isset($_SESSION['username'])) { ?>
+                            <td>
+                                <?php if ($comm->getPriority() != 1) {?>
+                                    <button class="btn btn-primary btn-sm edit-button" data-toggle="tooltip" data-placement="top" title="Edit">
+                                        <i class="fas fa-edit"></i></button>
+                                    <a class="btn btn-danger btn-sm delete-button" href="delete-comm.php?id=<?=$comm->getId()?>" data-toggle="tooltip" data-placement="top" title="Delete">
+                                        <i class="fas fa-times"></i></a>
+                                    <?php if ($comm->getPriority() > 2) { ?>
+                                        <a class="btn btn-light btn-sm up-button" href="change-prio.php?action=up&id=<?=$comm->getId()?>" data-toggle="tooltip" data-placement="top" title="Move up">
+                                            <i class="fas fa-caret-up"></i></a>
+                                    <?php } ?>
+                                    <?php if ($comm->getPriority() != $leastPrio) { ?>
+                                        <a class="btn btn-light btn-sm down-button" href="change-prio.php?action=down&id=<?=$comm->getId()?>" data-toggle="tooltip" data-placement="top" title="Move down">
+                                            <i class="fas fa-caret-down"></i></a>
+                                    <?php }?>
+                                <?php } else { ?>
+                                    <button class="btn btn-primary btn-sm edit-button" data-toggle="tooltip" data-placement="top" title="Edit">
+                                        <i class="fas fa-edit"></i></button>
+                                    <a class="btn btn-success btn-sm complete-button" href="delete-comm.php?id=<?=$comm->getId()?>" data-toggle="tooltip" data-placement="top" title="Complete">
+                                        <i class="fas fa-thumbs-up"></i></a>
                                 <?php }?>
-                            <?php } else { ?>
-                                <button class="btn btn-primary btn-sm edit-button" data-toggle="tooltip" data-placement="top" title="Edit">
-                                    <i class="fas fa-edit"></i></button>
-                                <a class="btn btn-success btn-sm complete-button" href="delete-comm.php?id=<?=$comm->getId()?>" data-toggle="tooltip" data-placement="top" title="Complete">
-                                    <i class="fas fa-thumbs-up"></i></a>
-                            <?php }?>
-                            <div class="d-none comm-id"><?=$comm->getId()?></div>
-                            <div class="d-none priority"><?=$comm->getPriority()?></div>
-                        </td>
+                                <div class="d-none comm-id"><?=$comm->getId()?></div>
+                                <div class="d-none priority"><?=$comm->getPriority()?></div>
+                            </td>
+                        <?php } ?>
                     </tr>
                     <?php } ?>
                     </tbody>
@@ -90,7 +98,7 @@
             <div class="modal-content">
                 <form action="add-commission.php" method="POST">
                     <div class="modal-header">
-                        <h5 class="modal-title" id="modalLabel">New message</h5>
+                        <h5 class="modal-title" id="modalLabel">New Commission</h5>
                         <button type="button" class="close" data-dismiss="modal" aria-label="Close">
                             <span aria-hidden="true">&times;</span>
                         </button>
@@ -142,6 +150,35 @@
         </div>
     </div>
 
+    <div class="modal fade" id="loginModal" tabindex="-1">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <form action="login.php" method="POST">
+                    <div class="modal-header">
+                        <h5 class="modal-title" id="modalLabel">Login</h5>
+                        <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                            <span aria-hidden="true">&times;</span>
+                        </button>
+                    </div>
+                    <div class="modal-body">
+                        <div class="form-group">
+                            <label for="comm-name" class="col-form-label">Username:</label>
+                            <input type="text" class="form-control" id="username" name="commName" value="sol" disabled>
+                        </div>
+                        <div class="form-group">
+                            <label for="comm-name" class="col-form-label">Password:</label>
+                            <input type="password" class="form-control" id="password" name="password" required>
+                        </div>
+                    </div>
+                    <div class="modal-footer">
+                        <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
+                        <button type="submit" class="btn btn-primary">Login</button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+
     <script type="application/javascript">
         let params = new URLSearchParams(window.location.search);
         if (params.has('success')) {
@@ -170,12 +207,22 @@
                 $('#alert-error-message').text('Commission does not exist');
             } else if (param === 'invalid-action') {
                 $('#alert-error-message').text('Invalid action');
+            } else if (param === 'inc-cred') {
+                $('#alert-error-message').text('Wrong credentials');
             }
             $('#error-alert').show();
             setTimeout(function() {
                 $('#error-alert').hide();
             }, 5000);
         }
+
+        $('#login-button').click(function(e) {
+            $('#password').val(null);
+
+            $('#loginModal').modal('toggle');
+
+            e.preventDefault();
+        });
 
         $('.edit-button').click(function() {
             $('#modalLabel').text('Edit Commission');

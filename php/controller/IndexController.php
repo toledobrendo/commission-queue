@@ -2,6 +2,8 @@
     define('__ROOT__', dirname(dirname(__FILE__)));
     require_once __ROOT__.'/model/Commission.php';
 
+    session_start();
+
     try {
         require_once __ROOT__.'/util/ConnectDatabase.php';
 
