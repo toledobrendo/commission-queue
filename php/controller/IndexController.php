@@ -51,6 +51,7 @@
             $comm->setPaid($row['paid']);
             $comm->setPriority($row['priority']);
             $comm->setExpectedDays($row['expected_days']);
+            $comm->setDescription($row['description']);
             array_push($comms, $comm);
         }
 

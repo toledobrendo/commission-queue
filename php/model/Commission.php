@@ -10,6 +10,7 @@
         private $paid;
         private $priority;
         private $expectedDays;
+        private $description;
 
         /**
          * @return mixed
@@ -169,6 +170,22 @@
         public function setExpectedDays($expectedDays): void
         {
             $this->expectedDays = $expectedDays;
+        }
+
+        /**
+         * @return mixed
+         */
+        public function getDescription()
+        {
+            return $this->description;
+        }
+
+        /**
+         * @param mixed $description
+         */
+        public function setDescription($description): void
+        {
+            $this->description = $description;
         }
     }
 ?>

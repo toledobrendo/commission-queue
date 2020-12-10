@@ -9,6 +9,7 @@
     $priority = $_POST['priority'];
     $currentDate = date("Y-m-d H:i:s ",time());
     $expectedDays = $_POST['expectedDays'];
+    $description = $_POST['description'];
 
     if (!$name || is_null($paid) || !$progress) {
         header('Location: index.php?error=input');
@@ -18,9 +19,9 @@
         if (!$id) {
             $priority = getNextPriority($db);
             $deleted = 0;
-            $query = 'insert into commissions (name, progress, paid, priority, expected_days, created_date, modified_date, deleted) values (?, ?, ?, ?, ?, ?, ?, ?);';
+            $query = 'insert into commissions (name, progress, paid, priority, expected_days, created_date, modified_date, deleted, description) values (?, ?, ?, ?, ?, ?, ?, ?, ?);';
             $stmt = $db->prepare($query);
-            $stmt->bind_param('sssiissi', $name, $progress, $paid, $priority, $expectedDays, $currentDate, $currentDate, $deleted);
+            $stmt->bind_param('sssiissis', $name, $progress, $paid, $priority, $expectedDays, $currentDate, $currentDate, $deleted, $description);
 
             $stmt->execute();
             $stmt->close();
@@ -33,9 +34,9 @@
                 $progress = 'Queued';
             }
 
-            $query = 'update commissions set name = ?, progress = ?, paid = ?, priority = ?, modified_date = ?, expected_days = ?  where id = ?;';
+            $query = 'update commissions set name = ?, progress = ?, paid = ?, priority = ?, modified_date = ?, expected_days = ?, description = ? where id = ?;';
             $stmt = $db->prepare($query);
-            $stmt->bind_param('sssisii', $name, $progress, $paid, $priority, $currentDate, $expectedDays, $id);
+            $stmt->bind_param('sssisisi', $name, $progress, $paid, $priority, $currentDate, $expectedDays, $description, $id);
 
             $stmt->execute();
             $stmt->close();

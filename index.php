@@ -84,6 +84,7 @@
                                 <div class="d-none comm-id"><?=$comm->getId()?></div>
                                 <div class="d-none priority"><?=$comm->getPriority()?></div>
                                 <div class="d-none est-days"><?=$comm->getExpectedDays()?></div>
+                                <div class="d-none comm-desc"><?=$comm->getDescription()?></div>
                             </td>
                         <?php } ?>
                     </tr>
@@ -169,6 +170,10 @@
                         <div class="form-group">
                             <label for="comm-name" class="col-form-label">Name:</label>
                             <input type="text" class="form-control" id="comm-name" name="commName" required autofocus>
+                        </div>
+                        <div class="form-group">
+                            <label for="comm-desc" class="col-form-label">Description:</label>
+                            <textarea class="form-control" id="comm-desc" rows="4" name="description"></textarea>
                         </div>
                         <div class="form-group" id="progress-group">
                             <label for="message-text" class="col-form-label">Progress:</label>
@@ -335,11 +340,13 @@
             let id = $(this).parentsUntil('tbody').find('.comm-id').get(0).innerText;
             let priority = $(this).parentsUntil('tbody').find('.priority').get(0).innerText;
             let estDays = $(this).parentsUntil('tbody').find('.est-days').get(0).innerText;
+            let description = $(this).parentsUntil('tbody').find('.comm-desc').get(0).innerText;
 
             $('#comm-name').val(name);
             $('#comm-id').val(id);
             $('#priority').val(priority);
             $('#est-days').val(estDays);
+            $('#comm-desc').val(description);
             $('input[name="progress"]').prop('checked', false).parent().removeClass('active');
             $('input[name="progress"][value="' + progress + '"]').prop('checked', true).parent().addClass('active');
             $('input[name="paid"]').prop('checked', false).parent().removeClass('active');
@@ -361,6 +368,7 @@
             $('#comm-id').val(null);
             $('#priority').val(null);
             $('#est-days').val(14);
+            $('#comm-desc').val(null);
             $('input[name="progress"]').prop('checked', false).parent().removeClass('active');
             $('input[name="progress"][value="Queued"]').prop('checked', true).parent().addClass('active');
             $('input[name="paid"]').prop('checked', false).parent().removeClass('active');
@@ -383,6 +391,7 @@
             $('#comm-id').val(id);
             $('#priority').val(null);
             $('#est-days').val(14);
+            $('#comm-desc').val(null);
             $('input[name="progress"]').prop('checked', false).parent().removeClass('active');
             $('input[name="progress"][value="WAITLISTED"]').prop('checked', true).parent().addClass('active');
             $('input[name="paid"]').prop('checked', false).parent().removeClass('active');

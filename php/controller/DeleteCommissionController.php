@@ -1,5 +1,9 @@
 <?php
     define('__ROOT__', dirname(dirname(__FILE__)));
+    session_start();
+    if (!isset($_SESSION['username'])) {
+        header('Location: index.php?error=access-denied');
+    }
 
     $id = $_GET['id'];
     if (!$id) {
