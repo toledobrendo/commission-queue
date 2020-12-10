@@ -25,13 +25,13 @@
             $stmt->close();
 
             if ($action == 'up') {
-                $query = 'update commissions set priority = priority - 1 where deleted = 0 and id = ?;';
+                $query = "update commissions set priority = priority - 1 where deleted = 0 and progress != 'WAITLISTED' and id = ?;";
                 $stmt = $db->prepare($query);
                 $stmt->bind_param('i', $id);
                 $stmt->execute();
                 $stmt->close();
 
-                $query = 'update commissions set priority = priority + 1 where deleted = 0 and id != ? and priority = ?;';
+                $query = "update commissions set priority = priority + 1 where deleted = 0 and progress != 'WAITLISTED' and id != ? and priority = ?;";
                 $stmt = $db->prepare($query);
                 $stmt->bind_param('ii', $id, $priority);
                 $stmt->execute();
@@ -39,13 +39,13 @@
 
                 header('Location: index.php?success=up&target='.$name);
             } else {
-                $query = 'update commissions set priority = priority + 1 where deleted = 0 and id = ?;';
+                $query = "update commissions set priority = priority + 1 where deleted = 0 and progress != 'WAITLISTED' and id = ?;";
                 $stmt = $db->prepare($query);
                 $stmt->bind_param('i', $id);
                 $stmt->execute();
                 $stmt->close();
 
-                $query = 'update commissions set priority = priority - 1 where deleted = 0 and id != ? and priority = ?;';
+                $query = "update commissions set priority = priority - 1 where deleted = 0 and progress != 'WAITLISTED' and id != ? and priority = ?;";
                 $stmt = $db->prepare($query);
                 $stmt->bind_param('ii', $id, $priority);
                 $stmt->execute();

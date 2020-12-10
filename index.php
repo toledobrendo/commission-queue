@@ -12,6 +12,18 @@
     <script src="lib/bootstrap/js/bootstrap.bundle.min.js" integrity="sha384-ho+j7jyWK8fNQe+A12Hb8AhRq26LrZ/JpcUGGOn+Y7RsweNrtN/tE3MoK7ZeZDyx" crossorigin="anonymous"></script>
 </head>
 <body>
+    <div class="alert alert-success alert-dismissible fade show hide alert-fixed" role="alert" style="display:none;" id="success-alert">
+        <div id="alert-success-message">Successfully edited commission</div>
+        <button type="button" class="close alert-close" data-dismiss="alert" aria-label="Close">
+            <span aria-hidden="true">&times;</span>
+        </button>
+    </div>
+    <div class="alert alert-danger alert-dismissible fade show hide alert-fixed" role="alert" style="display:none;" id="error-alert">
+        <div id="alert-error-message">Error</div>
+        <button type="button" class="close alert-close" data-dismiss="alert" aria-label="Close">
+            <span aria-hidden="true">&times;</span>
+        </button>
+    </div>
     <div class="container">
         <div class="card border-secondary mt-3">
             <div class="card-header">
@@ -25,25 +37,13 @@
                 </div>
             </div>
             <div class="card-body">
-                <div class="alert alert-success alert-dismissible fade show hide" role="alert" style="display:none;" id="success-alert">
-                    <div id="alert-success-message">Successfully edited commission</div>
-                    <button type="button" class="close alert-close" data-dismiss="alert" aria-label="Close">
-                        <span aria-hidden="true">&times;</span>
-                    </button>
-                </div>
-                <div class="alert alert-danger alert-dismissible fade show collapse" role="alert" style="display:none;" id="error-alert">
-                    <div id="alert-error-message">Error</div>
-                    <button type="button" class="close alert-close" data-dismiss="alert" aria-label="Close">
-                        <span aria-hidden="true">&times;</span>
-                    </button>
-                </div>
                 <table class="table table-striped">
                     <thead>
                     <tr>
                         <th scope="col">Name</th>
                         <th scope="col" style="width: 15%">Start Date</th>
-                        <th scope="col" style="width: 15%">Progress</th>
-                        <th scope="col" style="width: 10%">Paid</th>
+                        <th scope="col" style="width: 10%">Progress</th>
+                        <th scope="col" style="width: 10%" class="text-center">Paid</th>
                         <?php if (isset($_SESSION['username'])) { ?>
                             <th scope="col" style="width: 15%">Actions</th>
                         <?php } ?>
@@ -56,9 +56,9 @@
                         <td class="start-date"><?=$comm->getStartDate()?></td>
                         <td class="comm-progress"><?=$comm->getProgress()?></td>
                         <?php if ($comm->getPaid()) {?>
-                        <td><i class="fas fa-check text-success"></i><div class="d-none paid">true</div></td>
+                        <td class="text-center"><i class="fas fa-check text-success"></i><div class="d-none paid">true</div></td>
                         <?php } else {?>
-                        <td><i class="fas fa-times text-danger"></i><div class="d-none paid">false</div></td>
+                        <td class="text-center"><i class="fas fa-times text-danger"></i><div class="d-none paid">false</div></td>
                         <?php }?>
                         <?php if (isset($_SESSION['username'])) { ?>
                             <td>
@@ -83,9 +83,65 @@
                                 <?php }?>
                                 <div class="d-none comm-id"><?=$comm->getId()?></div>
                                 <div class="d-none priority"><?=$comm->getPriority()?></div>
+                                <div class="d-none est-days"><?=$comm->getExpectedDays()?></div>
                             </td>
                         <?php } ?>
                     </tr>
+                    <?php } ?>
+                    <?php if (count($comms) == 0) { ?>
+                        <tr id="task-0">
+                            <td colspan="<?=isset($_SESSION['username']) ? '5' : '4'?>" class="text-center text-muted">
+                                No commissions ongoing
+                            </td>
+                        </tr>
+                    <?php } ?>
+                    </tbody>
+                </table>
+            </div>
+        </div>
+
+        <div class="card border-secondary mt-3">
+            <div class="card-header">
+                <div class="row">
+                    <div class="col">Waitlist</div>
+                    <?php if (isset($_SESSION['username'])) { ?>
+                        <div class="col-6"><a class="float-right" href="no-javascript.html" id="add-wait-button"><i class="fas fa-plus"></i> Add Waitlist</a></div>
+                    <?php } ?>
+                </div>
+            </div>
+            <div class="card-body">
+                <table class="table table-striped">
+                    <thead>
+                    <tr>
+                        <th scope="col">Name</th>
+                        <?php if (isset($_SESSION['username'])) { ?>
+                            <th scope="col" style="width: 15%">Actions</th>
+                        <?php } ?>
+                    </tr>
+                    </thead>
+                    <tbody>
+                    <?php foreach ($waitlist as &$comm) { ?>
+                        <tr id="task-0">
+                            <td class="name"><?=$comm->getName()?></td>
+                            <?php if (isset($_SESSION['username'])) { ?>
+                                <td>
+                                    <button class="btn btn-primary btn-sm edit-wait-button" data-toggle="tooltip" data-placement="top" title="Edit">
+                                        <i class="fas fa-edit"></i></button>
+                                    <a class="btn btn-success btn-sm accept-wait-button" href="no-javascript.html" data-toggle="tooltip" data-placement="top" title="Accept">
+                                        <i class="fas fa-check"></i></a>
+                                    <a class="btn btn-danger btn-sm delete-button" href="delete-comm.php?id=<?=$comm->getId()?>" data-toggle="tooltip" data-placement="top" title="Delete">
+                                        <i class="fas fa-times"></i></a>
+                                    <div class="d-none comm-id"><?=$comm->getId()?></div>
+                                </td>
+                            <?php } ?>
+                        </tr>
+                    <?php } ?>
+                    <?php if (count($waitlist) == 0) { ?>
+                        <tr id="task-0">
+                            <td colspan="<?=isset($_SESSION['username']) ? '2' : '1'?>" class="text-center text-muted">
+                                No waitlists
+                            </td>
+                        </tr>
                     <?php } ?>
                     </tbody>
                 </table>
@@ -94,7 +150,7 @@
     </div>
     <footer class="footer py-2">
         <div class="col-12">
-            <small class="text-muted">Prototype by Brendo Toledo</small><br/>
+            <small class="text-muted">QuecoonProject Prototype by Brendo Toledo</small><br/>
             <small class="text-muted">toledo.brendo@gmail.com</small>
         </div>
     </footer>
@@ -117,6 +173,9 @@
                         <div class="form-group" id="progress-group">
                             <label for="message-text" class="col-form-label">Progress:</label>
                             <div class="w-100"></div>
+                            <label class="d-none">
+                                <input type="radio" name="progress" value="WAITLISTED"> WAITLISTED
+                            </label>
                             <div class="btn-group btn-group-toggle" data-toggle="buttons">
                                 <label class="btn btn-secondary">
                                     <input type="radio" name="progress" value="Queued"> Queued
@@ -133,6 +192,10 @@
                             </div>
                         </div>
                         <div class="form-group">
+                            <label for="est-days" class="col-form-label">Estimated Days:</label>
+                            <input type="number" class="form-control" id="est-days" name="expectedDays" min="1" required>
+                        </div>
+                        <div class="form-group">
                             <label for="message-text" class="col-form-label">Paid:</label>
                             <div class="w-100"></div>
                             <div class="btn-group btn-group-toggle" data-toggle="buttons">
@@ -146,6 +209,32 @@
                         </div>
                         <input type="hidden" id="comm-id" name="id"/>
                         <input type="hidden" id="priority" name="priority"/>
+                    </div>
+                    <div class="modal-footer">
+                        <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
+                        <button type="submit" class="btn btn-primary">Submit</button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+
+    <div class="modal fade" id="waitlistModal" tabindex="-1">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <form action="add-waitlist.php" method="POST">
+                    <div class="modal-header">
+                        <h5 class="modal-title" id="modalLabel">New Waitlist</h5>
+                        <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                            <span aria-hidden="true">&times;</span>
+                        </button>
+                    </div>
+                    <div class="modal-body">
+                        <div class="form-group">
+                            <label for="wait-name" class="col-form-label">Name:</label>
+                            <input type="text" class="form-control" id="wait-name" name="commName" required autofocus>
+                        </div>
+                        <input type="hidden" id="wait-id" name="id"/>
                     </div>
                     <div class="modal-footer">
                         <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
@@ -199,6 +288,10 @@
                 $('#alert-success-message').text('Successfully prioritized ' + params.get('target'));
             } else if (param === 'down') {
                 $('#alert-success-message').text('Successfully de-prioritized ' + params.get('target'));
+            } else if (param === 'create-waitlist') {
+                $('#alert-success-message').text('Successfully created new waitlist');
+            } else if (param === 'edit-waitlist') {
+                $('#alert-success-message').text('Successfully edited waitlist');
             }
             $('#success-alert').show();
             setTimeout(function() {
@@ -215,6 +308,8 @@
                 $('#alert-error-message').text('Invalid action');
             } else if (param === 'inc-cred') {
                 $('#alert-error-message').text('Wrong credentials');
+            } else if (param === 'input-waitlist') {
+                $('#alert-error-message').text('Waitlist details are not complete');
             }
             $('#error-alert').show();
             setTimeout(function() {
@@ -239,10 +334,12 @@
             let paid = $(this).parentsUntil('tbody').find('.paid').get(0).innerText;
             let id = $(this).parentsUntil('tbody').find('.comm-id').get(0).innerText;
             let priority = $(this).parentsUntil('tbody').find('.priority').get(0).innerText;
+            let estDays = $(this).parentsUntil('tbody').find('.est-days').get(0).innerText;
 
             $('#comm-name').val(name);
             $('#comm-id').val(id);
             $('#priority').val(priority);
+            $('#est-days').val(estDays);
             $('input[name="progress"]').prop('checked', false).parent().removeClass('active');
             $('input[name="progress"][value="' + progress + '"]').prop('checked', true).parent().addClass('active');
             $('input[name="paid"]').prop('checked', false).parent().removeClass('active');
@@ -250,6 +347,8 @@
 
             if (priority != 1) {
                 $('#progress-group').addClass('d-none');
+            } else {
+                $('#progress-group').removeClass('d-none');
             }
 
             $('#commModal').modal('toggle');
@@ -261,6 +360,7 @@
             $('#comm-name').val(null);
             $('#comm-id').val(null);
             $('#priority').val(null);
+            $('#est-days').val(14);
             $('input[name="progress"]').prop('checked', false).parent().removeClass('active');
             $('input[name="progress"][value="Queued"]').prop('checked', true).parent().addClass('active');
             $('input[name="paid"]').prop('checked', false).parent().removeClass('active');
@@ -271,6 +371,51 @@
             $('#commModal').modal('toggle');
 
             e.preventDefault();
+        });
+
+        $('.accept-wait-button').click(function(e) {
+            $('#modalLabel').text('Accept New Commission');
+
+            let name = $(this).parentsUntil('tbody').find('.name').get(0).innerText;
+            let id = $(this).parentsUntil('tbody').find('.comm-id').get(0).innerText;
+
+            $('#comm-name').val(name);
+            $('#comm-id').val(id);
+            $('#priority').val(null);
+            $('#est-days').val(14);
+            $('input[name="progress"]').prop('checked', false).parent().removeClass('active');
+            $('input[name="progress"][value="WAITLISTED"]').prop('checked', true).parent().addClass('active');
+            $('input[name="paid"]').prop('checked', false).parent().removeClass('active');
+            $('input[name="paid"][value="false"]').prop('checked', true).parent().addClass('active');
+
+            $('#progress-group').addClass('d-none');
+
+            $('#commModal').modal('toggle');
+
+            e.preventDefault();
+        });
+
+        $('#add-wait-button').click(function(e) {
+            $('#modalLabel').text('New Waitlist');
+
+            $('#wait').val(null);
+            $('#wait-id').val(null);
+
+            $('#waitlistModal').modal('toggle');
+
+            e.preventDefault();
+        });
+
+        $('.edit-wait-button').click(function(e) {
+            $('#modalLabel').text('Edit Waitlist');
+
+            let name = $(this).parentsUntil('tbody').find('.name').get(0).innerText;
+            let id = $(this).parentsUntil('tbody').find('.comm-id').get(0).innerText;
+
+            $('#wait-name').val(name);
+            $('#wait-id').val(id);
+
+            $('#waitlistModal').modal('toggle');
         });
     </script>
 </body>
