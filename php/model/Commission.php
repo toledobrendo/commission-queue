@@ -6,6 +6,7 @@
         private $deleted;
         private $name;
         private $startDate;
+        private $dueDate;
         private $progress;
         private $paid;
         private $priority;
@@ -186,6 +187,22 @@
         public function setDescription($description): void
         {
             $this->description = $description;
+        }
+
+        /**
+         * @return mixed
+         */
+        public function getDueDate()
+        {
+            return $this->dueDate;
+        }
+
+        /**
+         * @param mixed $dueDate
+         */
+        public function setDueDate($dueDate): void
+        {
+            $this->dueDate = $dueDate;
         }
     }
 ?>

@@ -50,24 +50,29 @@
                     </tr>
                     </thead>
                     <tbody>
+                    <?php $prevComm = null?>
                     <?php foreach ($comms as &$comm) { ?>
-                    <tr id="task-0">
-                        <td class="name"><?=$comm->getName()?></td>
-                        <td class="start-date"><?=$comm->getStartDate()?></td>
-                        <td class="comm-progress"><?=$comm->getProgress()?></td>
-                        <?php if ($comm->getPaid()) {?>
-                        <td class="text-center"><i class="fas fa-check text-success"></i><div class="d-none paid">true</div></td>
-                        <?php } else {?>
-                        <td class="text-center"><i class="fas fa-times text-danger"></i><div class="d-none paid">false</div></td>
-                        <?php }?>
-                        <?php if (isset($_SESSION['username'])) { ?>
-                            <td>
-                                <?php if ($comm->getPriority() != 1) {?>
+                        <tr id="task-0">
+                            <td class="name"><?=$comm->getName()?></td>
+                            <td class="start-date-string"><?=$comm->getStartDate()->format('M j, Y').($comm->getStartDate() > $currentDate ? ' (est.)' : '')?></td>
+                            <td class="comm-progress"><?=$comm->getProgress()?></td>
+                            <?php if ($comm->getPaid()) {?>
+                                <td class="text-center"><i class="fas fa-check text-success"></i><div class="d-none paid">true</div></td>
+                            <?php } else {?>
+                                <td class="text-center"><i class="fas fa-times text-danger"></i><div class="d-none paid">false</div></td>
+                            <?php }?>
+                            <?php if (isset($_SESSION['username'])) { ?>
+                                <td>
                                     <button class="btn btn-primary btn-sm edit-button" data-toggle="tooltip" data-placement="top" title="Edit">
                                         <i class="fas fa-edit"></i></button>
-                                    <a class="btn btn-danger btn-sm delete-button" href="delete-comm.php?id=<?=$comm->getId()?>" data-toggle="tooltip" data-placement="top" title="Delete">
-                                        <i class="fas fa-times"></i></a>
-                                    <?php if ($comm->getPriority() > 2) { ?>
+                                    <?php if ($comm->getStartDate() > $currentDate) {?>
+                                        <a class="btn btn-danger btn-sm delete-button" href="delete-comm.php?id=<?=$comm->getId()?>" data-toggle="tooltip" data-placement="top" title="Delete">
+                                            <i class="fas fa-times"></i></a>
+                                    <?php } else { ?>
+                                        <a class="btn btn-success btn-sm complete-button" href="delete-comm.php?id=<?=$comm->getId()?>" data-toggle="tooltip" data-placement="top" title="Complete">
+                                            <i class="fas fa-thumbs-up"></i></a>
+                                    <?php }?>
+                                    <?php if ($comm->getPriority() > 1) { ?>
                                         <a class="btn btn-light btn-sm up-button" href="change-prio.php?action=up&id=<?=$comm->getId()?>" data-toggle="tooltip" data-placement="top" title="Move up">
                                             <i class="fas fa-caret-up"></i></a>
                                     <?php } ?>
@@ -75,19 +80,15 @@
                                         <a class="btn btn-light btn-sm down-button" href="change-prio.php?action=down&id=<?=$comm->getId()?>" data-toggle="tooltip" data-placement="top" title="Move down">
                                             <i class="fas fa-caret-down"></i></a>
                                     <?php }?>
-                                <?php } else { ?>
-                                    <button class="btn btn-primary btn-sm edit-button" data-toggle="tooltip" data-placement="top" title="Edit">
-                                        <i class="fas fa-edit"></i></button>
-                                    <a class="btn btn-success btn-sm complete-button" href="delete-comm.php?id=<?=$comm->getId()?>" data-toggle="tooltip" data-placement="top" title="Complete">
-                                        <i class="fas fa-thumbs-up"></i></a>
-                                <?php }?>
-                                <div class="d-none comm-id"><?=$comm->getId()?></div>
-                                <div class="d-none priority"><?=$comm->getPriority()?></div>
-                                <div class="d-none est-days"><?=$comm->getExpectedDays()?></div>
-                                <div class="d-none comm-desc"><?=$comm->getDescription()?></div>
-                            </td>
-                        <?php } ?>
-                    </tr>
+                                    <div class="d-none comm-id"><?=$comm->getId()?></div>
+                                    <div class="d-none priority"><?=$comm->getPriority()?></div>
+                                    <div class="d-none est-days"><?=$comm->getExpectedDays()?></div>
+                                    <div class="d-none comm-desc"><?=$comm->getDescription()?></div>
+                                    <div class="d-none start-date"><?=$comm->getStartDate()->format('Y-m-d')?></div>
+                                </td>
+                            <?php } ?>
+                        </tr>
+                        <?php $prevComm = $comm?>
                     <?php } ?>
                     <?php if (count($comms) == 0) { ?>
                         <tr id="task-0">
@@ -148,6 +149,29 @@
                 </table>
             </div>
         </div>
+
+        <div class="card border-secondary mt-3 d-none">
+            <div class="card-header">Timeline</div>
+            <div class="card-body" style="overflow-x: overlay; max-width: 100%;">
+                <table class="table table-sm table-bordered">
+                    <tr>
+                        <td>&nbsp;</td>
+                        <?php foreach ($dayPeriod as $key => $value) { ?>
+                            <td><?=$value->format('m').'<br/>'.$value->format('d')?></td>
+                        <?php } ?>
+                    </tr>
+                    <?php foreach ($comms as &$comm) {?>
+                        <tr>
+                            <td><?=$comm->getName()?></td>
+                            <?php foreach ($dayPeriod as $key => $value) { ?>
+                                <td class="<?=($comm->getStartDate() <= $value && $comm->getDueDate() >= $value) || $comm->getDueDate()->format('Y-m-d') == $value->format('Y-m-d') ? 'bg-success' : ''?>"></td>
+                            <?php } ?>
+                        </tr>
+                    <?php } ?>
+                </table>
+            </div>
+
+        </div>
     </div>
     <footer class="footer py-2">
         <div class="col-12">
@@ -168,7 +192,7 @@
                     </div>
                     <div class="modal-body">
                         <div class="form-group">
-                            <label for="comm-name" class="col-form-label">Name:</label>
+                            <label for="comm-name" class="col-form-label req">Name:</label>
                             <input type="text" class="form-control" id="comm-name" name="commName" required autofocus>
                         </div>
                         <div class="form-group">
@@ -176,7 +200,7 @@
                             <textarea class="form-control" id="comm-desc" rows="4" name="description"></textarea>
                         </div>
                         <div class="form-group" id="progress-group">
-                            <label for="message-text" class="col-form-label">Progress:</label>
+                            <label for="message-text req" class="col-form-label">Progress:</label>
                             <div class="w-100"></div>
                             <label class="d-none">
                                 <input type="radio" name="progress" value="WAITLISTED"> WAITLISTED
@@ -197,8 +221,12 @@
                             </div>
                         </div>
                         <div class="form-group">
-                            <label for="est-days" class="col-form-label">Estimated Days:</label>
+                            <label for="est-days req" class="col-form-label">Estimated Days:</label>
                             <input type="number" class="form-control" id="est-days" name="expectedDays" min="1" required>
+                        </div>
+                        <div class="form-group" id="start-date-group">
+                            <label for="start-date" class="col-form-label">Start Date:</label>
+                            <input type="date" class="form-control" id="start-date" name="startDate">
                         </div>
                         <div class="form-group">
                             <label for="message-text" class="col-form-label">Paid:</label>
@@ -214,6 +242,7 @@
                         </div>
                         <input type="hidden" id="comm-id" name="id"/>
                         <input type="hidden" id="priority" name="priority"/>
+                        <input type="hidden" id="old-start-date" name="oldStartDate"/>
                     </div>
                     <div class="modal-footer">
                         <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
@@ -341,22 +370,28 @@
             let priority = $(this).parentsUntil('tbody').find('.priority').get(0).innerText;
             let estDays = $(this).parentsUntil('tbody').find('.est-days').get(0).innerText;
             let description = $(this).parentsUntil('tbody').find('.comm-desc').get(0).innerText;
+            let startDate = $(this).parentsUntil('tbody').find('.start-date').get(0).innerText;
+
+            console.log(startDate);
 
             $('#comm-name').val(name);
             $('#comm-id').val(id);
             $('#priority').val(priority);
             $('#est-days').val(estDays);
             $('#comm-desc').val(description);
+            $('#start-date').val(startDate);
+            $('#old-start-date').val(startDate);
             $('input[name="progress"]').prop('checked', false).parent().removeClass('active');
             $('input[name="progress"][value="' + progress + '"]').prop('checked', true).parent().addClass('active');
             $('input[name="paid"]').prop('checked', false).parent().removeClass('active');
             $('input[name="paid"][value="' + paid + '"]').prop('checked', true).parent().addClass('active');
 
-            if (priority != 1) {
+            if (new Date(startDate) <= new Date()) {
                 $('#progress-group').addClass('d-none');
             } else {
                 $('#progress-group').removeClass('d-none');
             }
+            $('#start-date-group').removeClass('d-none');
 
             $('#commModal').modal('toggle');
         });
@@ -369,12 +404,15 @@
             $('#priority').val(null);
             $('#est-days').val(14);
             $('#comm-desc').val(null);
+            $('#start-date').val(null);
+            $('#old-start-date').val(null);
             $('input[name="progress"]').prop('checked', false).parent().removeClass('active');
             $('input[name="progress"][value="Queued"]').prop('checked', true).parent().addClass('active');
             $('input[name="paid"]').prop('checked', false).parent().removeClass('active');
             $('input[name="paid"][value="false"]').prop('checked', true).parent().addClass('active');
 
             $('#progress-group').addClass('d-none');
+            $('#start-date-group').addClass('d-none');
 
             $('#commModal').modal('toggle');
 
@@ -392,12 +430,15 @@
             $('#priority').val(null);
             $('#est-days').val(14);
             $('#comm-desc').val(null);
+            $('#start-date').val(null);
+            $('#old-start-date').val(null);
             $('input[name="progress"]').prop('checked', false).parent().removeClass('active');
             $('input[name="progress"][value="WAITLISTED"]').prop('checked', true).parent().addClass('active');
             $('input[name="paid"]').prop('checked', false).parent().removeClass('active');
             $('input[name="paid"][value="false"]').prop('checked', true).parent().addClass('active');
 
             $('#progress-group').addClass('d-none');
+            $('#start-date-group').addClass('d-none');
 
             $('#commModal').modal('toggle');
 
